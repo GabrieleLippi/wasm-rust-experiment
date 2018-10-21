@@ -2,14 +2,22 @@
 <html>
   <head>
     <script> 
-      fetch("utils.gc.wasm")
-        .then(response => response.arrayBuffer())
-        .then(result => WebAssembly.instantiate(result))
+      const appendNumberToBody = (number) => {
+        const text = document.createTextNode(number);
+        document.body.appendChild(text);
+      }
+
+      const importObject = {
+        env: {
+          appendNumberToBody: appendNumberToBody,
+          alert: alert,
+        }
+      };
+
+      WebAssembly.instantiateStreaming(fetch("utils.gc.wasm"), importObject)
         .then(wasmModule => {
-          const result = wasmModule.instance.exports.add_one(2);
-          const text = document.createTextNode(result);
-          document.body.appendChild(text);
-        });
+          wasmModule.instance.exports.run()
+        })
     </script>
   <head>
   <body></body>
